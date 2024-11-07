@@ -1,0 +1,69 @@
+**MNIST stands for Modified National Institute of Standards and Technology.
+
+The MNIST dataset is built into TensorFlow and can be easily accessed using TensorFlow's keras.datasets module. It is one of the most commonly used datasets for image classification tasks.
+The pixel values of images in datasets like MNIST are typically in the range of 0 to 255. This means that each pixel value is represented by an integer between 0 (black) and 255 (white) in a grayscale image.
+
+It is a large database of handwritten digits that is commonly used for training and testing machine learning models, particularly for image classification tasks. The dataset consists of 60,000 training images and 10,000 test images of handwritten digits (0 to 9), each of size 28x28 pixels.
+
+
+**EPOCH
+epoch is like one full round of learning for the model.
+
+If you have a dataset with 1,000 training samples and train the model for 10 epochs, the model will process all 1,000 samples 10 times in total during the training.  
+
+**Iterations per epoch= Total number of samples/Batch size
+
+Example:
+If you have a dataset with 1,000 training samples and train the model for 10 epochs, the model will process all 1,000 samples 10 times in total during the training.
+
+
+
+**The matshow() function in Matplotlib is used to display 2D data as an image, where each element in the matrix is represented by a color. It’s particularly useful when you want to visualize a matrix, such as a confusion matrix, image data, or any other 2D array, in a way that is easy to interpret.
+
+
+
+
+**SGD stands for Stochastic Gradient Descent.
+
+It is an optimization algorithm used in machine learning and deep learning to minimize the loss function and update the model's weights during training.
+Compile Model: The model is compiled with the SGD optimizer, sparse categorical cross-entropy loss, and accuracy as the evaluation metric.
+Train Model: The model is trained on the training data for 10 epochs with 
+
+
+
+**1. Training Loss:
+Training loss is a measure of how well the model's predictions match the actual values (targets) during the training process.
+
+The most commonly used loss function for classification problems is Cross-Entropy Loss
+
+2. Training Accuracy:
+Training accuracy measures how often the model's predictions are correct during training.
+
+For classification problems, accuracy is calculated as:
+
+Accuracy = Number of correct predictions/Total number of predictions
+
+​
+ 
+
+**Anomaly Detection : refers to the process of identifying patterns or data points that do not conform to expected behavior or trends in a dataset.
+
+ 
+**1. Optimizer:
+An optimizer is an algorithm used to adjust the model's parameters (weights and biases) to minimize the loss function during training.
+common optimizer:
+Gradient Descent
+Stochastic Gradient Descent (SGD)
+
+**2. Loss Function:
+The loss function (or cost function) measures how well the model's predictions match the actual targets (ground truth).
+
+
+**3. Evaluation Metrics:
+Evaluation metrics are used to assess the model's performance after training. These metrics give insight into how well the model generalizes to unseen data and whether it's overfitting or underfittin
+
+Common matrix:
+Accuracy
+precision
+Recall
+

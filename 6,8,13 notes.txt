@@ -1,0 +1,214 @@
+Step 1: Data Preparation
+
+import numpy as np
+import re
+Import Libraries: Import numpy for numerical operations and re for regular
+expressions to clean the text.
+
+
+data = """Deep learning (also known as deep structured learning) is part of a broader family of machine learning methods based on artificial neural networks with representation learning. Learning can be supervised, semi-supervised or unsupervised. Deep-learning architectures such as deep neural networks, deep belief networks, deep reinforcement learning, recurrent neural networks, convolutional neural networks and Transformers have been applied to fields including computer vision, speech recognition, natural language processing, machine translation, bioinformatics, drug design, medical image analysis, climate science, material inspection and board game programs, where they have produced results comparable to and in some cases surpassing human expert performance."""
+data
+
+
+Define Data: Store the text data in a string variable called data.
+
+
+
+
+sentences = data.split('.')
+sentences
+
+
+Split Text into Sentences: Split the text data into individual sentences using the period . as a delimiter and store the sentences in a list called sentences.
+
+
+
+clean_sent=[]
+for sentence in sentences:
+    if sentence == "":
+        continue
+    sentence = re.sub('[^A-Za-z0-9]+', ' ', sentence)
+    sentence = re.sub(r'(?:^| )\w (?:$| )', ' ', sentence).strip()
+    sentence = sentence.lower()
+    clean_sent.append(sentence)
+
+clean_sent
+
+
+Clean Sentences: Initialize an empty list clean_sent. Loop through each sentence:
+Skip empty sentences.
+Remove non-alphanumeric characters.
+Remove single characters.
+Convert text to lowercase.
+Add the cleaned sentence to the clean_sent list.
+
+
+
+Step 2: Generate Training Data
+
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+
+# Tokenize the sentences
+tokenizer = Tokenizer()
+tokenizer.fit_on_texts(clean_sent)
+sequences = tokenizer.texts_to_sequences(clean_sent)
+
+
+Import Tokenizer: Import Tokenizer from tensorflow.keras.preprocessing.text.
+Initialize Tokenizer: Create an instance of Tokenizer.
+Fit Tokenizer: Fit the tokenizer on the cleaned sentences.
+Convert Text to Sequences: Convert the cleaned sentences into sequences of integers using the tokenizer.
+
+
+
+# Create word-index and index-word mappings
+index_to_word = {}
+word_to_index = {}
+for i, sequence in enumerate(sequences):
+    word_in_sentence = clean_sent[i].split()
+    for j, value in enumerate(sequence):
+        index_to_word[value] = word_in_sentence[j]
+        word_to_index[word_in_sentence[j]] = value
+
+# Generate context-target pairs
+vocab_size = len(tokenizer.word_index) + 1
+emb_size = 10
+context_size = 2
+
+
+
+Initialize Mappings: Create empty dictionaries index_to_word and word_to_index.
+Populate Mappings: Loop through each sequence and its corresponding cleaned sentence to populate the mappings between words and their indices.
+Define Variables: Define vocab_size as the number of unique words plus one, emb_size as the embedding size, and context_size as the number of context words on each side of the target word.
+
+
+
+
+contexts = []
+targets = []
+for sequence in sequences:
+    for i in range(context_size, len(sequence) - context_size):
+        target = sequence[i]
+        context = [sequence[i - 2], sequence[i - 1], sequence[i + 1], sequence[i + 2]]
+        contexts.append(context)
+        targets.append(target)
+
+# Print some context-target pairs
+for i in range(5):
+    words = [index_to_word.get(j) for j in contexts[i]]
+    target = index_to_word.get(targets[i])
+    print(words, "->", target)
+
+# Convert contexts and targets to numpy arrays
+X = np.array(contexts)
+Y = np.array(targets)
+
+
+Initialize Lists: Create empty lists contexts and targets.
+Generate Context-Target Pairs: Loop through each sequence:
+For each word in the sequence (excluding the context size at the start and end), create context-target pairs.
+Append the context and target words to the respective lists.
+Print Pairs: Print a few context-target pairs for verification.
+Convert to Arrays: Convert the contexts and targets lists to numpy arrays X and Y.
+
+
+
+Step 3: Train Model
+
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Embedding, Lambda
+Import TensorFlow: Import TensorFlow and necessary layers from tensorflow.keras.
+python
+Copy code
+# Define the CBOW model
+model = Sequential([
+    Embedding(input_dim=vocab_size, output_dim=emb_size, input_length=2 * context_size),
+    Lambda(lambda x: tf.reduce_mean(x, axis=1)),
+    Dense(256, activation='relu'),
+    Dense(512, activation='relu'),
+    Dense(vocab_size, activation='softmax')
+])
+
+
+Define Model: Create a Sequential model:
+Add an Embedding layer with input_dim as vocabulary size, output_dim as embedding size, and input_length as twice the context size.
+Add a Lambda layer to compute the mean of the context vectors.
+Add Dense layers with ReLU activation.
+Add a Dense output layer with softmax activation.
+
+
+
+# Compile and train the model
+model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+history = model.fit(X, Y, epochs=80)
+Compile Model: Compile the model with sparse categorical cross-entropy loss, Adam optimizer, and accuracy metric.
+Train Model: Train the model on the context-target pairs for 80 epochs.
+
+
+
+Step 4: Output
+
+
+import seaborn as sns
+from sklearn.decomposition import PCA
+
+
+Import Libraries: Import seaborn for plotting and PCA for dimensionality reduction.
+
+
+
+# Plot training history
+sns.lineplot(model.history.history['loss'])
+
+
+Plot Training History: Plot the training loss over epochs.
+
+
+
+
+# Get and reduce embeddings
+embeddings = model.get_weights()[0]
+pca = PCA(n_components=2)
+reduced_embeddings = pca.fit_transform(embeddings)
+
+
+Get Embeddings: Retrieve the learned embeddings from the model.
+Reduce Dimensionality: Use PCA to reduce the dimensionality of the embeddings to 2D (for visualization, though not visualized in this code).
+
+
+
+
+# Test the model with some sentences
+test_sentences = [
+    "known as structured learning",
+    "transformers have applied to",
+    "where they produced results",
+    "cases surpassing expert performance"
+]
+
+
+
+Define Test Sentences: Define a list of test sentences to evaluate the model.
+
+
+
+
+for sent in test_sentences:
+    test_words = sent.split()
+    x_test = [word_to_index.get(i) for i in test_words]
+    x_test = np.array([x_test])
+    
+    pred = model.predict(x_test)
+    pred = np.argmax(pred[0])
+    print("Predicted for", test_words, "->", index_to_word.get(pred))
+
+
+
+Test Model: Loop through each test sentence:
+Split the sentence into words.
+Convert words to their respective indices.
+Predict the next word using the model.
+Print the predicted word along with the context words.

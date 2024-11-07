@@ -1,0 +1,209 @@
+Step 1: Loading and Preprocessing the Image Data
+
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import matplotlib.pyplot as plt
+import numpy as np
+%matplotlib inline
+
+
+
+Import Libraries: Import TensorFlow, Keras, layers from Keras, Matplotlib for plotting, and Numpy for numerical operations. The %matplotlib inline command is used to display plots inline in Jupyter notebooks.
+
+
+
+(X_train, y_train), (X_test, y_test) = keras.datasets.mnist.load_data()
+
+
+Load MNIST Data: Load the MNIST dataset from Keras datasets. This returns training and testing sets: X_train, y_train, X_test, and y_test.
+
+
+
+len(X_train)
+len(X_test)
+
+
+Check Dataset Lengths: Print the number of training and testing samples.
+
+
+
+X_train.shape
+y_train.shape
+
+
+Check Shapes: Print the shapes of X_train and y_train. X_train should be (60000, 28, 28) and y_train should be (60000,).
+
+
+
+
+X_train[0].shape
+
+
+Check Single Image Shape: Print the shape of a single training image. This should be (28, 28).
+
+
+
+X_train[0]
+
+
+Inspect a Single Image: Print the pixel values of the first training image. This shows the actual pixel values ranging from 0 to 255.
+
+
+
+plt.matshow(X_train[5])
+
+
+Visualize an Image: Plot the sixth training image using matshow.
+
+
+
+
+y_train[5]
+
+
+Check Label: Print the label of the sixth training image.
+
+
+
+X_train = X_train / 255
+X_test = X_test / 255
+
+
+Normalize Data: Normalize the pixel values to be between 0 and 1 by dividing by 255.
+
+
+
+X_train[0]
+
+
+Inspect Normalized Image: Print the normalized pixel values of the first training image.
+
+
+
+Step 2: Defining the Model's Architecture
+
+
+model = keras.models.Sequential([
+    # CNN
+    layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)),
+    layers.MaxPooling2D(2, 2),
+    layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu'),
+    layers.MaxPooling2D(2, 2),
+    
+    # Dense
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(10, activation='softmax')
+])
+
+
+Define Model: Create a Sequential model with the following layers:
+
+Conv2D: A convolutional layer with 32 filters, 3x3 kernel size, ReLU activation, and input shape (28, 28, 1).
+
+MaxPooling2D: A max-pooling layer with 2x2 pool size.
+
+Conv2D: Another convolutional layer with 32 filters, 3x3 kernel size, and ReLU activation.
+
+MaxPooling2D: Another max-pooling layer with 2x2 pool size.
+
+Flatten: Flatten the input to create a 1D vector.
+
+Dense: A dense (fully connected) layer with 64 units and ReLU activation.
+
+Dense: The output layer with 10 units (one for each digit) and softmax activation.
+
+
+
+
+Step 3: Training the Model
+
+
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+
+Compile Model: Compile the model with Adam optimizer, sparse categorical cross-entropy loss (suitable for integer labels), and accuracy metric.
+
+
+
+model.fit(X_train, y_train, epochs=11)
+
+
+Train Model: Train the model on the training data for 11 epochs.
+
+
+
+Step 4: Estimating the Model's Performance
+
+
+model.evaluate(X_test, y_test)
+
+
+Evaluate Model: Evaluate the model's performance on the test data. This prints the loss and accuracy on the test set.
+
+
+
+
+plt.matshow(X_test[0])
+plt.show()
+
+
+Visualize a Test Image: Plot the first test image.
+
+
+
+y_predicted = model.predict(X_test)
+
+
+Predict on Test Data: Predict the class probabilities for the test data.
+
+
+
+y_predicted[0]
+
+
+Inspect Predictions: Print the predicted probabilities for the first test image.
+
+
+
+np.argmax(y_predicted[0])
+
+
+Get Predicted Class: Get the predicted class for the first test image by finding the index of the maximum probability.
+
+
+
+y_pred = [np.argmax(i) for i in y_predicted]
+
+
+Convert Predictions to Class Labels: Convert the predicted probabilities to class labels for all test images.
+
+
+
+y_pred[:5]
+
+
+Inspect Predictions: Print the first five predicted class labels.
+
+
+
+cm = tf.math.confusion_matrix(labels=y_test, predictions=y_pred)
+cm
+
+
+Compute Confusion Matrix: Compute the confusion matrix to compare true labels with predicted labels.
+
+
+
+import seaborn as sns
+plt.figure(figsize=(10, 7))
+sns.heatmap(cm, annot=True, fmt='d')
+plt.xlabel("Predicted")
+plt.ylabel('Truth')
+
+
+Plot Confusion Matrix: Use Seaborn to plot the confusion matrix, annotating the values and labeling the axes.
