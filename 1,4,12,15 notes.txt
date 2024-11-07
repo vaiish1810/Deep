@@ -1,0 +1,242 @@
+NOTES:
+
+
+1. feed forward neural network is an artificial neural network in which the connections between nodes does not form a cycle of loop.
+2. the input is processes in one direction
+3. it is also called as DEEP FORWARD NETWORK or MULTILAYER PERCEPTRON
+4. it consist of three layers: input layer, hidden layer, output layer
+5. the neurons are fully connected
+
+***MNIST stands for Modified National Institute of Standards and Technology.
+
+The MNIST dataset is built into TensorFlow and can be easily accessed using TensorFlow's keras.datasets module. It is one of the most commonly used datasets for image classification tasks.
+The pixel values of images in datasets like MNIST are typically in the range of 0 to 255. This means that each pixel value is represented by an integer between 0 (black) and 255 (white) in a grayscale image.
+
+It is a large database of handwritten digits that is commonly used for training and testing machine learning models, particularly for image classification tasks. The dataset consists of 60,000 training images and 10,000 test images of handwritten digits (0 to 9), each of size 28x28 pixels.
+
+
+***EPOCH
+epoch is like one full round of learning for the model.
+
+If you have a dataset with 1,000 training samples and train the model for 10 epochs, the model will process all 1,000 samples 10 times in total during the training.  
+
+Iterations per epoch= Total number of samples/Batch size
+​
+
+
+
+1. Importing Necessary Libraries
+
+import tensorflow as tf
+from tensorflow import keras
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+%matplotlib inline
+
+
+TensorFlow and Keras: TensorFlow is an open-source platform for machine learning, and Keras is a high-level API within TensorFlow for building and training models.
+Pandas, NumPy, and Matplotlib: These are essential libraries for data manipulation (pandas), numerical operations (numpy), and data visualization (matplotlib).
+Random: This library is used to generate random numbers.
+%matplotlib inline: This magic function ensures that plots are displayed within Jupyter Notebook cells.
+
+
+
+2. Load and Preprocess Data
+
+
+
+#import dataset and split into train and test data
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+#to see length of training dataset
+len(x_train)
+##to see length of testing dataset
+len(x_test)
+#shape of training dataset  60,000 images having 28*28 size
+x_train.shape
+#shape of testing dataset  10,000 images having 28*28 size
+x_test.shape
+
+x_train[0]
+#to see how first image look
+plt.matshow(x_train[0])
+
+
+Loading Data: The MNIST dataset is loaded, which contains handwritten digit images. It is split into training and testing sets.
+Data Length and Shape: The length and shape of the training and testing datasets are printed to understand the size and dimensions of the data.
+Visualize First Image: The first image of the training set is visualized using matshow to understand how the data looks.
+
+**The matshow() function in Matplotlib is used to display 2D data as an image, where each element in the matrix is represented by a color. It’s particularly useful when you want to visualize a matrix, such as a confusion matrix, image data, or any other 2D array, in a way that is easy to interpret.
+
+
+3. Normalize the Data
+
+#normalize the images by scaling pixel intensities to the range 0,1
+x_train = x_train / 255
+x_test = x_test / 255
+x_train[0]
+
+
+Normalization: The pixel values of the images are normalized to the range [0, 1] by dividing by 255. This is a common preprocessing step to improve model performance.
+The pixel values of images in datasets like MNIST are typically in the range of 0 to 255. This means that each pixel value is represented by an integer between 0 (black) and 255 (white) in a grayscale image.
+
+
+
+4. Define the Network Architecture
+
+
+#Define the network architecture using Keras
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(28, 28)),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dense(10, activation='softmax')
+])
+
+model.summary()
+
+
+Model Definition: A Sequential model is defined with three layers:
+Flatten layer to convert each 28x28 image into a 1D array of 784 pixels.
+Dense layer with 128 neurons and ReLU activation function.
+Dense layer with 10 neurons (for 10 classes) and softmax activation function.
+Model Summary: model.summary() prints the summary of the model architecture, including the layers and their output shapes.
+
+
+5. Compile and Train the Model
+
+model.compile(optimizer='sgd',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=10)
+
+
+
+SGD stands for Stochastic Gradient Descent.
+
+It is an optimization algorithm used in machine learning and deep learning to minimize the loss function and update the model's weights during training.
+Compile Model: The model is compiled with the SGD optimizer, sparse categorical cross-entropy loss, and accuracy as the evaluation metric.
+Train Model: The model is trained on the training data for 10 epochs with 
+
+
+
+6. validation on the testing data.
+
+
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print("Loss=%.3f" % test_loss)
+print("Accuracy=%.3f" % test_acc)
+
+
+
+Evaluate Model: The model is evaluated on the test data to determine the test loss and accuracy.
+Print Results: The test loss and accuracy are printed.
+
+model.evaluate(x_test, y_test):
+
+This function evaluates the performance of the trained model on the test set (x_test, y_test).
+
+x_test: This is the input data for testing (e.g., test images or features).
+
+y_test: These are the true labels or ground truth values corresponding to the test data.
+
+The evaluate() method returns two values:
+
+test_loss: The value of the loss function computed on the test data. It indicates how well the model's predictions align with the true values. A lower loss value suggests better performance.
+test_acc: The accuracy of the model on the test data. It indicates the percentage of correct predictions made by the model out of the total predictions.
+print("Loss=%.3f" % test_loss):
+
+This line prints the test loss value.
+%.3f is a format specifier that means "format as a floating-point number with 3 digits after the decimal point."
+% test_loss: The % here is used to insert the test_loss value into the formatted string. It is a string formatting operator in Python. The value of test_loss will replace the placeholder %.3f, showing the test loss up to 3 decimal places.
+print("Accuracy=%.3f" % test_acc):
+
+This line prints the test accuracy value.
+The %.3f format specifier is the same as above, indicating that the accuracy value should be printed with 3 digits after the decimal point.
+% test_acc: Similarly, this substitutes the test_acc value into the formatted string, showing the test accuracy with 3 decimal places.
+
+What does % mean in this context?
+In this context, the % symbol is used for string formatting in Python. The %.3f tells Python to print a floating-point number with 3 digits after the decimal point. It is a standard way to format output in Python to control the number of decimal places or the type of representation.
+
+% test_loss and % test_acc: These placeholders are replaced with the values of test_loss and test_acc, respectively, in the printed output.
+
+
+
+
+7. Make Predictions
+
+
+n = random.randint(0, 9999)
+plt.imshow(x_test[n])
+plt.show()
+
+#we use predict() on new data
+predicted_value = model.predict(x_test)
+print("Handwritten number in the image is= %d" % np.argmax(predicted_value[n]))
+
+
+n = random.randint(0, 9999):
+
+This line generates a random integer n between 0 and 9999 (inclusive) using the random.randint(a, b) function from the random module.
+random.randint(0, 9999): This function picks a random integer from the range [0, 9999], where 0 is the minimum value and 9999 is the maximum value. This value is assigned to the variable n.
+Purpose: This line is used to randomly pick an index from the test dataset x_test. The idea is to display a random image from x_test.
+plt.imshow(x_test[n]):
+
+plt.imshow() is a function from matplotlib.pyplot that is used to display an image.
+x_test[n]: This selects the image at the index n from the test dataset x_test. The x_test array contains the test images, and n is the randomly generated index.
+Note: In the context of MNIST or other image datasets, x_test is typically a 3D array (or tensor), where each element is an individual image (such as a grayscale image with pixel values).
+For example, if x_test contains images of size 28x28, then x_test[n] will represent a single 28x28 image.
+
+np.argmax(): This function returns the index of the maximum value in an array. In this case, np.argmax(predicted_value[n]) returns the index (or class) of the highest predicted probability, which corresponds to the predicted handwritten digit in the image.
+
+Random Image: A random image from the test set is selected and displayed.
+Make Prediction: The model predicts the class of the random test image, and the predicted class is printed.
+
+
+
+8. Plot Training Loss and Accuracy
+
+
+history.history.keys()
+
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+plt.show()
+
+
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+plt.show()
+
+
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Training Loss and accuracy')
+plt.ylabel('accuracy/Loss')
+plt.xlabel('epoch')
+plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'])
+plt.show()
+
+
+
+Plot History: The training and validation accuracy and loss are plotted over epochs.
+history.history['accuracy'] and history.history['val_accuracy'] are plotted for training and validation accuracy.
+history.history['loss'] and history.history['val_loss'] are plotted for training and validation loss.
+Titles and Labels: Titles, labels, and legends are added to the plots for clarity.
+Combined Plot: A combined plot of accuracy and loss for both training and validation sets is created.
